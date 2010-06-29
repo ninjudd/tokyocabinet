@@ -1,0 +1,248 @@
+# Makefile for Tokyo Cabinet for Java
+
+
+
+#================================================================
+# Setting Variables
+#================================================================
+
+
+# Generic settings
+SHELL = @SHELL@
+
+# Package information
+PACKAGE = @PACKAGE_NAME@
+VERSION = @PACKAGE_VERSION@
+PACKAGEDIR = $(PACKAGE)-$(VERSION)
+PACKAGETGZ = $(PACKAGE)-$(VERSION).tar.gz
+LIBVER = @MYLIBVER@
+LIBREV = @MYLIBREV@
+
+# Targets
+JARFILES = @MYJARFILES@
+JAVAFILES = @MYJAVAFILES@
+LIBRARYFILES = @MYLIBRARYFILES@
+LIBOBJFILES = @MYLIBOBJFILES@
+
+# Install destinations
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+datarootdir = @datarootdir@
+LIBDIR = @libdir@
+DESTDIR =
+
+# Building configuration
+JAVAC = @JAVAC@
+JAVACFLAGS = @JAVACFLAGS@
+JAR = @JAR@
+JAVAH = @JAVAH@
+JAVADOC = @JAVADOC@
+JAVARUN = @JAVARUN@
+CC = @CC@
+CPPFLAGS = @MYCPPFLAGS@
+CFLAGS = @MYCFLAGS@
+LDFLAGS = @MYLDFLAGS@
+LIBS = @LIBS@
+LDENV = LD_RUN_PATH=/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@:.
+RUNENV = @MYLDLIBPATHENV@=.:/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@
+
+
+
+#================================================================
+# Suffix rules
+#================================================================
+
+
+.SUFFIXES :
+.SUFFIXES : .c .o
+
+.c.o :
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+
+
+#================================================================
+# Actions
+#================================================================
+
+
+all : $(JARFILES) $(LIBRARYFILES)
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Ready to install.\n'
+	@printf '#================================================================\n'
+
+
+clean :
+	rm -rf $(JARFILES) $(LIBRARYFILES) $(LIBOBJFILES) \
+	  *.o a.out *.class check.in check.out gmon.out leak.log \
+	  casket casket-* casket.* *.wal *~ hoge moge
+
+
+untabify :
+	ls *.c *.h *.java | while read name ; \
+	  do \
+	    sed -e 's/\t/        /g' -e 's/ *$$//' $$name > $$name~; \
+	    [ -f $$name~ ] && mv -f $$name~ $$name ; \
+	  done
+
+
+install :
+	mkdir -p $(DESTDIR)$(LIBDIR)
+	cp -Rf $(JARFILES) $(DESTDIR)$(LIBDIR)
+	cp -Rf $(LIBRARYFILES) $(DESTDIR)$(LIBDIR)
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Thanks for using Tokyo Cabinet for Java.\n'
+	@printf '#================================================================\n'
+
+
+uninstall :
+	cd $(DESTDIR)$(LIBDIR) && rm -f $(JARFILES)
+	cd $(DESTDIR)$(LIBDIR) && rm -f $(LIBRARYFILES)
+
+
+dist :
+	make untabify
+	make distclean
+	cd .. && tar cvf - $(PACKAGEDIR) | gzip -c > $(PACKAGETGZ)
+	sync ; sync
+
+
+distclean : clean
+	rm -rf Makefile config.cache config.log config.status autom4te.cache
+
+
+head : tokyocabinet.jar
+	CLASSPATH=tokyocabinet.jar $(JAVAH) -jni \
+	  tokyocabinet.HDB tokyocabinet.BDB tokyocabinet.BDBCUR \
+	  tokyocabinet.FDB tokyocabinet.TDB tokyocabinet.TDBQRY \
+	  tokyocabinet.ADB tokyocabinet.Util
+
+
+check :
+	rm -rf casket*
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.HDBTest write casket 10000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.HDBTest read casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.HDBTest remove casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.HDBTest misc casket 1000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar \
+	  tokyocabinet.HDBTest write -tl -as -td casket 10000 10000 1 1
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.HDBTest read -nl casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.HDBTest remove -nb casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.HDBTest misc -tl -tb casket 1000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.BDBTest write casket 10000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.BDBTest read casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.BDBTest remove casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.BDBTest misc casket 1000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar \
+	  tokyocabinet.BDBTest write -tl casket 10000 10 10 100 1 1
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.BDBTest read -nl casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.BDBTest remove -nb casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.BDBTest misc -tl -tb casket 1000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.FDBTest write casket 10000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.FDBTest read casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.FDBTest remove casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.FDBTest misc casket 1000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar \
+	  tokyocabinet.TDBTest write -ip -is -in casket 10000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.TDBTest read casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.TDBTest remove casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.TDBTest misc casket 500
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar \
+	  tokyocabinet.TDBTest write -tl -is -td casket 10000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.TDBTest read -nl casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.TDBTest remove -nb casket
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.TDBTest misc -tl -tb casket 500
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar \
+	  tokyocabinet.ADBTest write "casket.tch#mode=wct" 10000
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.ADBTest read "casket.tch#mode=r"
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar tokyocabinet.ADBTest remove "casket.tch#mode=w"
+	$(RUNENV) $(JAVARUN) -cp tokyocabinet.jar \
+	  tokyocabinet.ADBTest misc "casket.tch#mode=wct" 1000
+	rm -rf casket*
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Checking completed.\n'
+	@printf '#================================================================\n'
+
+
+doc :
+	make docclean
+	mkdir -p doc
+	$(JAVADOC) -locale en -windowtitle tokyocabinet -overview overview.html \
+	  -tag note:a:"Note:" -d doc -nodeprecated -nohelp -quiet *.java
+
+
+docclean :
+	rm -rf doc
+
+
+.PHONY : all clean install casket check doc
+
+
+
+#================================================================
+# Building binaries
+#================================================================
+
+
+tokyocabinet.jar : $(JAVAFILES)
+	$(JAVAC) $(JAVACFLAGS) $(JAVAFILES)
+	$(JAR) cvf $@ tokyocabinet/*.class
+	rm -rf tokyocabinet
+
+
+libjtokyocabinet.so.$(LIBVER).$(LIBREV).0 : $(LIBOBJFILES)
+	$(CC) $(CFLAGS) -shared -Wl,-soname,libjtokyocabinet.so.$(LIBVER) -o $@ \
+	  $(LIBOBJFILES) $(LDFLAGS) $(LIBS)
+
+
+libjtokyocabinet.so.$(LIBVER) : libjtokyocabinet.so.$(LIBVER).$(LIBREV).0
+	ln -f -s libjtokyocabinet.so.$(LIBVER).$(LIBREV).0 $@
+
+
+libjtokyocabinet.so : libjtokyocabinet.so.$(LIBVER).$(LIBREV).0
+	ln -f -s libjtokyocabinet.so.$(LIBVER).$(LIBREV).0 $@
+
+
+libjtokyocabinet.$(LIBVER).$(LIBREV).0.dylib : $(LIBOBJFILES)
+	$(CC) $(CFLAGS) -dynamiclib -o $@ \
+	  -install_name $(LIBDIR)/libjtokyocabinet.$(LIBVER).dylib \
+	  -current_version $(LIBVER).$(LIBREV).0 -compatibility_version $(LIBVER) \
+	  $(LIBOBJFILES) $(LDFLAGS) $(LIBS)
+
+
+libjtokyocabinet.$(LIBVER).dylib : libjtokyocabinet.$(LIBVER).$(LIBREV).0.dylib
+	ln -f -s libjtokyocabinet.$(LIBVER).$(LIBREV).0.dylib $@
+
+
+libjtokyocabinet.dylib : libjtokyocabinet.$(LIBVER).$(LIBREV).0.dylib
+	ln -f -s libjtokyocabinet.$(LIBVER).$(LIBREV).0.dylib $@
+
+
+libjtokyocabinet.jnilib : libjtokyocabinet.dylib
+	ln -f -s libjtokyocabinet.dylib $@
+
+
+hdb.o : tokyocabinet_HDB.h
+
+bdb.o : tokyocabinet_BDB.h
+
+bdbcur.o : tokyocabinet_BDBCUR.h
+
+fdb.o : tokyocabinet_FDB.h
+
+tdb.o : tokyocabinet_TDB.h
+
+tdbqry.o : tokyocabinet_TDBQRY.h
+
+adb.o : tokyocabinet_ADB.h
+
+util.o : tokyocabinet_Util.h
+
+$(LIBOBJFILES) : myconf.h
+
+
+
+# END OF FILE

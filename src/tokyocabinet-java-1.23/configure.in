@@ -1,0 +1,208 @@
+# Source of configuration for Tokyo Cabinet for Java
+
+
+
+#================================================================
+# Generic Settings
+#================================================================
+
+# Package name
+AC_INIT(tokyocabinet-java, 1.23)
+
+# Package information
+MYLIBVER=1
+MYLIBREV=1
+
+# Targets
+MYJARFILES="tokyocabinet.jar"
+MYJAVAFILES="DBM.java HDB.java BDB.java BDBCUR.java BDBCMP.java FDB.java"
+MYJAVAFILES="$MYJAVAFILES TDB.java TDBQRY.java TDBQRYPROC.java ADB.java"
+MYJAVAFILES="$MYJAVAFILES HDBTest.java BDBTest.java FDBTest.java TDBTest.java ADBTest.java"
+MYJAVAFILES="$MYJAVAFILES Util.java Loader.java"
+MYLIBRARYFILES=""
+MYLIBOBJFILES="hdb.o bdb.o bdbcur.o fdb.o tdb.o tdbqry.o adb.o util.o myconf.o"
+
+# Building flags
+MYCFLAGS="-std=c99 -Wall -fPIC -fsigned-char -O2"
+MYCPPFLAGS="-I. -I\$(INCLUDEDIR) -L$HOME/include -L/usr/local/include -DNDEBUG -D_GNU_SOURCE=1"
+MYLDFLAGS="-L. -L\$(LIBDIR) -L$HOME/lib -L/usr/local/lib"
+MYRUNPATH="\$(LIBDIR)"
+MYLDLIBPATHENV="LD_LIBRARY_PATH"
+
+# Building paths
+pathtmp="$PATH"
+PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
+PATH="$PATH:/usr/ccs/bin:/usr/ucb:/usr/xpg4/bin:/usr/xpg6/bin:$pathtmp"
+LIBRARY_PATH="$HOME/lib:/usr/local/lib:$LIBRARY_PATH"
+LD_LIBRARY_PATH="$HOME/lib:/usr/local/lib:$LD_LIBRARY_PATH"
+CPATH="$HOME/include:/usr/local/include:$CPATH"
+PKG_CONFIG_PATH="$HOME/lib/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PATH LIBRARY_PATH LD_LIBRARY_PATH CPATH PKG_CONFIG_PATH
+if type pkg-config > /dev/null 2>&1
+then
+  PATH="$PATH:`pkg-config --variable=bindir tokyocabinet`"
+  LIBRARY_PATH="$LIBRARY_PATH:`pkg-config --variable=libdir tokyocabinet`"
+  LD_LIBRARY_PATH="$LD_LIBRARY_PATH:`pkg-config --variable=libdir tokyocabinet`"
+  CPATH="$CPATH:`pkg-config --variable=includedir tokyocabinet`"
+  export PATH LIBRARY_PATH LD_LIBRARY_PATH CPATH PKG_CONFIG_PATH
+fi
+
+# Messages
+printf '#================================================================\n'
+printf '# Configuring Tokyo Cabinet for Java version %s.\n' "$PACKAGE_VERSION"
+printf '#================================================================\n'
+
+
+
+#================================================================
+# Checking Commands to Build with
+#================================================================
+
+# Home directory of Java
+printf 'checking MYJAVAHOME... '
+if test -d "$JAVA_HOME"
+then
+  MYJAVAHOME="$JAVA_HOME"
+fi
+printf '%s\n' "$MYJAVAHOME"
+
+# Platform of Java
+printf 'checking JVMPLATFORM... '
+if uname | grep Darwin > /dev/null
+then
+  JVMPLATFORM="mac"
+else
+  for file in `\ls $MYJAVAHOME/include`
+  do
+    if test -d "$MYJAVAHOME/include/$file"
+    then
+      JVMPLATFORM="$file"
+    fi
+  done
+fi
+printf '%s\n' "$JVMPLATFORM"
+MYCPPFLAGS="$MYCPPFLAGS -I$MYJAVAHOME/include -I$MYJAVAHOME/include/$JVMPLATFORM"
+CPATH="$CPATH:$MYJAVAHOME/include:$MYJAVAHOME/include/$JVMPLATFORM"
+
+# Java compiler
+printf 'checking JAVAC... '
+JAVAC="$MYJAVAHOME/bin/javac"
+if uname | grep Darwin > /dev/null
+then
+  if test -x "$MYJAVAHOME/Commands/javac"
+  then
+    JAVAC="$MYJAVAHOME/Commands/javac"
+  else
+    JAVAC="$MYJAVAHOME/bin/javac"
+  fi
+fi
+if test -x "$JAVAC"
+then
+  printf '%s\n' "$JAVAC"
+else
+  printf 'no\n'
+  printf '#================================================================\n' 1>&2
+  printf '# WARNING: %s is not found.\n' "$JAVAC" 1>&2
+  printf '#================================================================\n' 1>&2
+fi
+JAVACFLAGS="-source 1.4 -d ."
+
+# Other building tools
+if uname | grep Darwin > /dev/null
+then
+  if test -x "$MYJAVAHOME/Commands/java"
+  then
+    JAR="$MYJAVAHOME/Commands/jar"
+    JAVAH="$MYJAVAHOME/Commands/javah"
+    JAVADOC="$MYJAVAHOME/Commands/javadoc"
+    JAVARUN="$MYJAVAHOME/Commands/java"
+  else
+    JAR="$MYJAVAHOME/bin/jar"
+    JAVAH="$MYJAVAHOME/bin/javah"
+    JAVADOC="$MYJAVAHOME/bin/javadoc"
+    JAVARUN="$MYJAVAHOME/bin/java"
+  fi
+else
+  JAR="$MYJAVAHOME/bin/jar"
+  JAVAH="$MYJAVAHOME/bin/javah"
+  JAVADOC="$MYJAVAHOME/bin/javadoc"
+  JAVARUN="$MYJAVAHOME/bin/java"
+fi
+
+# C compiler
+AC_PROG_CC
+
+# Underlying libraries
+AC_CHECK_LIB(c, main)
+AC_CHECK_LIB(m, main)
+AC_CHECK_LIB(pthread, main)
+AC_CHECK_LIB(z, main)
+AC_CHECK_LIB(bz2, main)
+AC_CHECK_LIB(tokyocabinet, main)
+
+# Necessary headers
+AC_CHECK_HEADER(stdlib.h, true, AC_MSG_ERROR([stdlib.h is required]))
+AC_CHECK_HEADER(stdint.h, true, AC_MSG_ERROR([stdint.h is required]))
+AC_CHECK_HEADER(tcutil.h, true, AC_MSG_ERROR([tcutil.h is required]))
+AC_CHECK_HEADER(jni.h, true, AC_MSG_ERROR([jni.h is required]))
+
+# Checking the version of Tokyo Cabinet with pkg-config
+if type pkg-config > /dev/null 2>&1 && pkg-config --atleast-version=1.0.3 tokyocabinet
+then
+  MYCPPOPTS="$MYCPPOPTS -I`pkg-config --variable=includedir tokyocabinet`"
+  MYLDOPTS="$MYLDOPTS -L`pkg-config --variable=libdir tokyocabinet`"
+  MYRUNPATH="$MYRUNPATH:`pkg-config --variable=libdir tokyocabinet`"
+fi
+
+# Shared libraries
+if uname | grep Darwin >/dev/null
+then
+  MYLIBRARYFILES="$MYLIBRARYFILES libjtokyocabinet.$MYLIBVER.$MYLIBREV.0.dylib"
+  MYLIBRARYFILES="$MYLIBRARYFILES libjtokyocabinet.$MYLIBVER.dylib"
+  MYLIBRARYFILES="$MYLIBRARYFILES libjtokyocabinet.dylib"
+  MYLIBRARYFILES="$MYLIBRARYFILES libjtokyocabinet.jnilib"
+  MYLDLIBPATHENV="DYLD_LIBRARY_PATH"
+else
+  MYLIBRARYFILES="$MYLIBRARYFILES libjtokyocabinet.so.$MYLIBVER.$MYLIBREV.0"
+  MYLIBRARYFILES="$MYLIBRARYFILES libjtokyocabinet.so.$MYLIBVER"
+  MYLIBRARYFILES="$MYLIBRARYFILES libjtokyocabinet.so"
+fi
+
+
+
+#================================================================
+# Generic Settings
+#================================================================
+
+
+# Export variables
+AC_SUBST(MYLIBVER)
+AC_SUBST(MYLIBREV)
+AC_SUBST(MYJARFILES)
+AC_SUBST(MYJAVAFILES)
+AC_SUBST(MYLIBRARYFILES)
+AC_SUBST(MYLIBOBJFILES)
+AC_SUBST(MYJAVAHOME)
+AC_SUBST(JAVAC)
+AC_SUBST(JAVACFLAGS)
+AC_SUBST(JAR)
+AC_SUBST(JAVAH)
+AC_SUBST(JAVADOC)
+AC_SUBST(JAVARUN)
+AC_SUBST(MYCFLAGS)
+AC_SUBST(MYCPPFLAGS)
+AC_SUBST(MYLDFLAGS)
+AC_SUBST(MYRUNPATH)
+AC_SUBST(MYLDLIBPATHENV)
+
+# Targets
+AC_OUTPUT(Makefile)
+
+# Messages
+printf '#================================================================\n'
+printf '# Ready to make.\n'
+printf '#================================================================\n'
+
+
+
+# END OF FILE

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+<meta http-equiv="Content-Language" content="en" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta name="author" content="Mikio Hirabayashi" />
+<meta name="keywords" content="Tokyo Cabinet, Java" />
+<meta name="description" content="API specifications of Java binding" />
+<link rel="contents" href="./" />
+<link rev="made" href="mailto:mikio@users.sourceforge.net" />
+<title>Java Binding of Tokyo Cabinet</title>
+</head>
+
+<body>
+
+<h1>Java Binding of Tokyo Cabinet.</h1>
+
+<div>Tokyo Cabinet is a modern implementation of DBM.</div>
+
+<h2>Introduction</h2>
+
+<p>Tokyo Cabinet is a library of routines for managing a database.  The database is a simple data file containing records, each is a pair of a key and a value.  Every key and value is serial bytes with variable length.  Both binary data and character string can be used as a key and a value.  There is neither concept of data tables nor data types.  Records are organized in hash table, B+ tree, or fixed-length array.</p>
+
+<p>As for database of hash table, each key must be unique within a database, so it is impossible to store two or more records with a key overlaps.  The following access methods are provided to the database: storing a record with a key and a value, deleting a record by a key, retrieving a record by a key.  Moreover, traversal access to every key are provided, although the order is arbitrary.  These access methods are similar to ones of DBM (or its followers: NDBM and GDBM) library defined in the UNIX standard.  Tokyo Cabinet is an alternative for DBM because of its higher performance.</p>
+
+<p>As for database of B+ tree, records whose keys are duplicated can be stored.  Access methods of storing, deleting, and retrieving are provided as with the database of hash table.  Records are stored in order by a comparison function assigned by a user.  It is possible to access each record with the cursor in ascending or descending order.  According to this mechanism, forward matching search for strings and range search for integers are realized.</p>
+
+<p>As for database of fixed-length array, records are stored with unique natural numbers.  It is impossible to store two or more records with a key overlaps.  Moreover, the length of each record is limited by the specified length.  Provided operations are the same as ones of hash database.</p>
+
+<p>Table database is also provided as a variant of hash database.  Each record is identified by the primary key and has a set of named columns.  Although there is no concept of data schema, it is possible to search for records with complex conditions efficiently by using indices of arbitrary columns.</p>
+
+<h2>Setting</h2>
+
+<p>Install the latest version of Tokyo Cabinet beforehand and get the package of the Java binding of Tokyo Cabinet.</p>
+
+<p>Enter the directory of the extracted package then perform installation.</p>
+
+<pre style="margin: 0em 0.8em; padding: 0.3em; background: #eeeeff none; border: 1px solid #cccccc; font-size: 90%;">./configure
+make
+make check
+su
+make install
+</pre>
+
+<p>When a series of work finishes, the JAR file `tokyocabinet.jar' and the shared object files `libjtokyocabinet.so' and so on are installed under `/usr/local/lib'.</p>
+
+<p>Let the class search path include `/usr/local/lib/tokyocabinet.jar' and let the library search path include `/usr/local/lib'.</p>
+
+<pre style="margin: 0em 0.8em; padding: 0.3em; background: #eeeeff none; border: 1px solid #cccccc; font-size: 90%;">CLASSPATH="$CLASSPATH:/usr/local/lib/tokyocabinet.jar"
+LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
+export CLASSPATH LD_LIBRARY_PATH
+</pre>
+
+<p>The above settings can be specified by options of the runtime command.</p>
+
+<pre style="margin: 0em 0.8em; padding: 0.3em; background: #eeeeff none; border: 1px solid #cccccc; font-size: 90%;">java -cp tokyocabinet.jar -Djava.library.path=. FooBarBaz ...
+</pre>
+
+<p>All symbols of Tokyo Cabinet are defined in the package `tokyocabinet'.  You can access them without any prefix by importing the package.</p>
+
+<pre style="margin: 0em 0.8em; padding: 0.3em; background: #eeeeff none; border: 1px solid #cccccc; font-size: 90%;">import tokyocabinet.*;
+</pre>
+
+<h2>Example</h2>
+
+<p>The following code is an example to use a hash database.</p>
+
+<pre style="margin: 0em 0.8em; padding: 0.3em; background: #eeeeff none; border: 1px solid #cccccc; font-size: 90%;">import tokyocabinet.*;
+
+public class TCHDBEX {
+  public static void main(String[] args){
+
+    // create the object
+    HDB hdb = new HDB();
+
+    // open the database
+    if(!hdb.open("casket.tch", HDB.OWRITER | HDB.OCREAT)){
+      int ecode = hdb.ecode();
+      System.err.println("open error: " + hdb.errmsg(ecode));
+    }
+
+    // store records
+    if(!hdb.put("foo", "hop") ||
+       !hdb.put("bar", "step") ||
+       !hdb.put("baz", "jump")){
+      int ecode = hdb.ecode();
+      System.err.println("put error: " + hdb.errmsg(ecode));
+    }
+
+    // retrieve records
+    String value = hdb.get("foo");
+    if(value != null){
+      System.out.println(value);
+    } else {
+      int ecode = hdb.ecode();
+      System.err.println("get error: " + hdb.errmsg(ecode));
+    }
+
+    // traverse records
+    hdb.iterinit();
+    String key;
+    while((key = hdb.iternext2()) != null){
+      value = hdb.get(key);
+      if(value != null){
+        System.out.println(key + ":" + value);
+      }
+    }
+
+    // close the database
+    if(!hdb.close()){
+      int ecode = hdb.ecode();
+      System.err.println("close error: " + hdb.errmsg(ecode));
+    }
+
+  }
+}
+</pre>
+
+<p>The following code is an example to use a B+ tree database.</p>
+
+<pre style="margin: 0em 0.8em; padding: 0.3em; background: #eeeeff none; border: 1px solid #cccccc; font-size: 90%;">import tokyocabinet.*;
+
+public class TCBDBEX {
+  public static void main(String[] args){
+
+    // create the object
+    BDB bdb = new BDB();
+
+    // open the database
+    if(!bdb.open("casket.tcb", BDB.OWRITER | BDB.OCREAT)){
+      int ecode = bdb.ecode();
+      System.err.println("open error: " + bdb.errmsg(ecode));
+    }
+
+    // store records
+    if(!bdb.put("foo", "hop") ||
+       !bdb.put("bar", "step") ||
+       !bdb.put("baz", "jump")){
+      int ecode = bdb.ecode();
+      System.err.println("put error: " + bdb.errmsg(ecode));
+    }
+
+    // retrieve records
+    String value = bdb.get("foo");
+    if(value != null){
+      System.out.println(value);
+    } else {
+      int ecode = bdb.ecode();
+      System.err.println("get error: " + bdb.errmsg(ecode));
+    }
+
+    // traverse records
+    BDBCUR cur = new BDBCUR(bdb);
+    cur.first();
+    String key;
+    while((key = cur.key2()) != null){
+      value = cur.val2();
+      if(value != null){
+        System.out.println(key + ":" + value);
+      }
+      cur.next();
+    }
+
+    // close the database
+    if(!bdb.close()){
+      int ecode = bdb.ecode();
+      System.err.println("close error: " + bdb.errmsg(ecode));
+    }
+
+  }
+}
+</pre>
+
+<p>The following code is an example to use a fixed-length database.</p>
+
+<pre style="margin: 0em 0.8em; padding: 0.3em; background: #eeeeff none; border: 1px solid #cccccc; font-size: 90%;">import tokyocabinet.*;
+
+public class TCFDBEX {
+  public static void main(String[] args){
+
+    // create the object
+    FDB fdb = new FDB();
+
+    // open the database
+    if(!fdb.open("casket.tcf", FDB.OWRITER | FDB.OCREAT)){
+      int ecode = fdb.ecode();
+      System.err.println("open error: " + fdb.errmsg(ecode));
+    }
+
+    // store records
+    if(!fdb.put("1", "one") ||
+       !fdb.put("12", "twelve") ||
+       !fdb.put("144", "one forty four")){
+      int ecode = fdb.ecode();
+      System.err.println("put error: " + fdb.errmsg(ecode));
+    }
+
+    // retrieve records
+    String value = fdb.get("1");
+    if(value != null){
+      System.out.println(value);
+    } else {
+      int ecode = fdb.ecode();
+      System.err.println("get error: " + fdb.errmsg(ecode));
+    }
+
+    // traverse records
+    fdb.iterinit();
+    String key;
+    while((key = fdb.iternext2()) != null){
+      value = fdb.get(key);
+      if(value != null){
+        System.out.println(key + ":" + value);
+      }
+    }
+
+    // close the database
+    if(!fdb.close()){
+      int ecode = fdb.ecode();
+      System.err.println("close error: " + fdb.errmsg(ecode));
+    }
+
+  }
+}
+</pre>
+
+<p>The following code is an example to use a table database.</p>
+
+<pre style="margin: 0em 0.8em; padding: 0.3em; background: #eeeeff none; border: 1px solid #cccccc; font-size: 90%;">import tokyocabinet.*;
+import java.util.*;
+
+public class TCTDBEX {
+  public static void main(String[] args){
+
+    // create the object
+    TDB tdb = new TDB();
+
+    // open the database
+    if(!tdb.open("casket.tct", TDB.OWRITER | TDB.OCREAT)){
+      int ecode = tdb.ecode();
+      System.err.println("open error: " + tdb.errmsg(ecode));
+    }
+
+    // store a record
+    String pkey = new Long(tdb.genuid()).toString();
+    Map cols = new HashMap();
+    cols.put("name", "mikio");
+    cols.put("age", "30");
+    cols.put("lang", "ja,en,c");
+    if(!tdb.put(pkey, cols)){
+      int ecode = tdb.ecode();
+      System.err.println("put error: " + tdb.errmsg(ecode));
+    }
+
+    // store another record
+    cols = new HashMap();
+    cols.put("name", "falcon");
+    cols.put("age", "31");
+    cols.put("lang", "ja");
+    cols.put("skill", "cook,blog");
+    if(!tdb.put("x12345", cols)){
+      int ecode = tdb.ecode();
+      System.err.println("put error: " + tdb.errmsg(ecode));
+    }
+
+    // search for records
+    TDBQRY qry = new TDBQRY(tdb);
+    qry.addcond("age", TDBQRY.QCNUMGE, "20");
+    qry.addcond("lang", TDBQRY.QCSTROR, "ja,en");
+    qry.setorder("name", TDBQRY.QOSTRASC);
+    qry.setlimit(10, 0);
+    List res = qry.search();
+    Iterator it = res.iterator();
+    while(it.hasNext()){
+      String rkey = new String((byte[])it.next());
+      Map rcols = tdb.get(rkey);
+      System.out.println("name:" + rcols.get("name"));
+    }
+
+    // close the database
+    if(!tdb.close()){
+      int ecode = tdb.ecode();
+      System.err.println("close error: " + tdb.errmsg(ecode));
+    }
+
+  }
+}
+</pre>
+
+<p>The following code is an example to use an abstract database.</p>
+
+<pre style="margin: 0em 0.8em; padding: 0.3em; background: #eeeeff none; border: 1px solid #cccccc; font-size: 90%;">import tokyocabinet.*;
+
+public class TCADBEX {
+  public static void main(String[] args){
+
+    // create the object
+    ADB adb = new ADB();
+
+    // open the database
+    if(!adb.open("casket.tch")){
+      System.err.println("open error");
+    }
+
+    // store records
+    if(!adb.put("foo", "hop") ||
+       !adb.put("bar", "step") ||
+       !adb.put("baz", "jump")){
+      System.err.println("put error");
+    }
+
+    // retrieve records
+    String value = adb.get("foo");
+    if(value != null){
+      System.out.println(value);
+    } else {
+      System.err.println("get error");
+    }
+
+    // traverse records
+    adb.iterinit();
+    String key;
+    while((key = adb.iternext2()) != null){
+      value = adb.get(key);
+      if(value != null){
+        System.out.println(key + ":" + value);
+      }
+    }
+
+    // close the database
+    if(!adb.close()){
+      System.err.println("close error");
+    }
+
+  }
+}
+</pre>
+
+<h2>License</h2>
+
+<div>Copyright (C) 2006-2009 Mikio Hirabayashi</div>
+
+<p>The Java binding of Tokyo Cabinet is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License or any later version.  The Java binding of Tokyo Cabinet is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.  You should have received a copy of the GNU Lesser General Public License along with the Java binding of Tokyo Cabinet; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.</p>
+
+</body>
+
+</html>
