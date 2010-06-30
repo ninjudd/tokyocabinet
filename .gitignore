@@ -1,3 +1,7 @@
+.cake
 *.jar
 *~
 pom.xml
+lib
+build
+classes
