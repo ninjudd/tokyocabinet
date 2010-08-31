@@ -15,6 +15,8 @@
   (clean (file "src" tokyocabinet))
   (clean (file "src" tokyocabinet-java)))
 
+(remove-dep! jar compile)
+
 (deftask compile-native #{clean}
   (log (format "Compiling tokyocabinet for %s/%s" (os-name) (os-arch)))
   (let [dest    (.getPath (file "build" "native"))
