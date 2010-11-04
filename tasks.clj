@@ -1,6 +1,6 @@
 (ns user
   (:use [cake.core :only [deftask]]
-        [cake.file :only [file]]
+        [cake.file :only [file rm rmdir]]
         [cake.project :only [log]]
         [cake.ant :only [ant args env add-zipfileset]]
         [cake.tasks.deps :only [os-name os-arch]])
@@ -49,4 +49,6 @@
       (ant ExecTask {:executable "make" :dir src :failonerror true}
            (args "install")))
     (ant Copy {:todir classes}
-         (add-zipfileset {:src (str dest "/lib/tokyocabinet.jar") :includes "**/*.class"}))))
+         (add-zipfileset {:src (str dest "/lib/tokyocabinet.jar") :includes "**/*.class"}))
+    (rm (file dest "lib/tokyocabinet.jar"))
+    (rmdir (file dest "lib/pkgconfig"))))
