@@ -1,5 +1,5 @@
 (ns user
-  (:use [cake.core :only [deftask]]
+  (:use [cake.core :only [deftask remove-dep!]]
         [cake.file :only [file rm rmdir]]
         [cake.project :only [log]]
         [cake.ant :only [ant args env add-zipfileset]]
@@ -52,3 +52,5 @@
          (add-zipfileset {:src (str dest "/lib/tokyocabinet.jar") :includes "**/*.class"}))
     (rm (file dest "lib/tokyocabinet.jar"))
     (rmdir (file dest "lib/pkgconfig"))))
+
+(remove-dep! jar compile)
