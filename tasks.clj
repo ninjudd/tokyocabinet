@@ -18,10 +18,15 @@
   (clean (file "src" tokyocabinet-java)))
 
 (defn fix-install-path [src lib]
-  (when (= "macosx" (os-name))
-    (ant Replace {:file (file src "Makefile")
-                  :token (str "-install_name $(LIBDIR)/lib" lib ".$(LIBVER).dylib")
-                  :value (str "-install_name @loader_path/lib" lib ".dylib")})))
+  (case (os-name)
+        "macosx"
+        (ant Replace {:file (file src "Makefile")
+                      :token (str "-install_name $(LIBDIR)/lib" lib ".$(LIBVER).dylib")
+                      :value (str "-install_name @loader_path/lib" lib ".dylib")})
+        "linux"
+        (let [token "\nLDFLAGS ="
+              rpath "-Wl,-R,'$$ORIGIN'"]
+          (ant Replace {:file (file src "Makefile") :token token :value (str token " " rpath)}))))
 
 (deftask compile-native #{clean}
   (log (format "Compiling tokyocabinet for %s/%s" (os-name) (os-arch)))
@@ -43,7 +48,7 @@
            (args prefix)
            (env {"JAVA_HOME" (System/getProperty "java.home") "CFLAGS" cflags}))
       (let [token "\nCFLAGS ="] ; hack because configure doesn't set CFLAGS correctly in Makefile
-        (ant Replace {:file (file src "Makefile") :token token :value (str token cflags)}))
+        (ant Replace {:file (file src "Makefile") :token token :value (str token " " cflags)}))
       (fix-install-path src "jtokyocabinet")
       (ant ExecTask {:executable "make" :dir src :failonerror true})
       (ant ExecTask {:executable "make" :dir src :failonerror true}
