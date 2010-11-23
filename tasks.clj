@@ -1,9 +1,9 @@
 (ns user
   (:use [cake.core :only [deftask remove-dep!]]
         [cake.file :only [file rm rmdir]]
-        [cake.project :only [log]]
+        [bake.core :only [log]]
         [cake.ant :only [ant args env add-zipfileset]]
-        [cake.tasks.deps :only [os-name os-arch]])
+        [cake.utils :only [os-name os-arch]])
   (:import [org.apache.tools.ant.taskdefs Copy ExecTask Replace]))
 
 (def tokyocabinet      "tokyocabinet-1.4.45")
