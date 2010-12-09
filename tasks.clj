@@ -1,5 +1,5 @@
-(ns user
-  (:use [cake.core :only [deftask remove-dep!]]
+(ns tasks
+  (:use [cake.core :only [deftask]]
         [cake.file :only [file rm rmdir]]
         [bake.core :only [log]]
         [cake.ant :only [ant args env add-zipfileset]]
