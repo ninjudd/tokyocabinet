@@ -2,7 +2,7 @@
   (:use [cake.core :only [deftask]]
         [cake.file :only [file rm rmdir]]
         [bake.core :only [log]]
-        [cake.ant :only [ant args env add-zipfileset]]
+        [uncle.core :only [ant args env add-zipfileset]]
         [cake.utils :only [os-name os-arch]])
   (:import [org.apache.tools.ant.taskdefs Copy ExecTask Replace]))
 
