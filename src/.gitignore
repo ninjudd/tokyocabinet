@@ -1,1 +1,8 @@
-*
+*.o
+*.dylib
+*.a
+*.jar
+*.jnilib
+Makefile
+config.status
+config.log
