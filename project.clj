@@ -1,2 +1,2 @@
-(defproject tokyocabinet "1.23-SNAPSHOT"
+(defproject tokyocabinet "1.24.0"
   :description "native tokyo cabinet libraries")
