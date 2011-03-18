@@ -285,6 +285,9 @@
 #if ! defined(NAME_MAX)
 #define NAME_MAX       255
 #endif
+#if ! defined(MAP_POPULATE)
+#define MAP_POPULATE   0
+#endif
 
 extern int _tc_dummy_cnt;
 

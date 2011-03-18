@@ -110,6 +110,8 @@ public class HDB implements DBM {
   public static final int OLCKNB = 1 << 5;
   /** open mode: synchronize every transaction */
   public static final int OTSYNC = 1 << 6;
+  /** open mode: pre-populate page tables (linux only) */
+  public static final int OPREPOP = 1 << 7;
   //----------------------------------------------------------------
   // public static methods
   //----------------------------------------------------------------
