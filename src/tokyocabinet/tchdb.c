@@ -3447,19 +3447,10 @@ static bool tchdbopenimpl(TCHDB *hdb, const char *path, int omode){
   size_t xmsiz = (hdb->xmsiz > msiz) ? hdb->xmsiz : msiz;
   if(!(omode & HDBOWRITER) && xmsiz > hdb->fsiz) xmsiz = hdb->fsiz;
 
-// DEBUG
-if (omode & HDBOPREPOP) {
-  fprintf(stderr, "populate %d\n", MAP_POPULATE);
-}
-if (omode & HDBOMLOCK) {
-  fprintf(stderr, "mlock %d\n", MAP_LOCKED);
-}
-
   void *map = mmap(0, xmsiz, PROT_READ | ((omode & HDBOWRITER) ? PROT_WRITE : 0),
                    ((omode & HDBOPREPOP) ? MAP_POPULATE : 0) | ((omode & HDBOMLOCK) ? MAP_LOCKED : 0) |
                    MAP_SHARED, fd, 0);
   if(map == MAP_FAILED){
-    fprintf(stderr, "mmap error: %s\n", strerror(errno));
     tchdbsetecode(hdb, TCEMMAP, __FILE__, __LINE__, __func__);
     close(fd);
     return false;
