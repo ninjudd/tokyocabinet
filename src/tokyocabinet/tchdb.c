@@ -3459,6 +3459,7 @@ if (omode & HDBOMLOCK) {
                    ((omode & HDBOPREPOP) ? MAP_POPULATE : 0) | ((omode & HDBOMLOCK) ? MAP_LOCKED : 0) |
                    MAP_SHARED, fd, 0);
   if(map == MAP_FAILED){
+    fprintf(stderr, "mmap error: %s\n", strerror(errno));
     tchdbsetecode(hdb, TCEMMAP, __FILE__, __LINE__, __func__);
     close(fd);
     return false;
