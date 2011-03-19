@@ -288,6 +288,9 @@
 #if ! defined(MAP_POPULATE)
 #define MAP_POPULATE   0
 #endif
+#if ! defined(MAP_LOCKED)
+#define MAP_LOCKED     0
+#endif
 
 extern int _tc_dummy_cnt;
 

@@ -112,6 +112,8 @@ public class HDB implements DBM {
   public static final int OTSYNC = 1 << 6;
   /** open mode: pre-populate page tables (linux only) */
   public static final int OPREPOP = 1 << 7;
+  /** open mode: lock mapped region using mlock (linux only) */
+  public static final int OMLOCK = 1 << 8;
   //----------------------------------------------------------------
   // public static methods
   //----------------------------------------------------------------

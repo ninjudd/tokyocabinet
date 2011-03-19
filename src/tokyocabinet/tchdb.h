@@ -130,7 +130,8 @@ enum {                                   /* enumeration for open modes */
   HDBONOLCK = 1 << 4,                    /* open without locking */
   HDBOLCKNB = 1 << 5,                    /* lock without blocking */
   HDBOTSYNC = 1 << 6,                    /* synchronize every transaction */
-  HDBOPREPOP = 1 << 7                    /* pre-populate page tables (linux only) */
+  HDBOPREPOP = 1 << 7,                   /* pre-populate page tables (linux only) */
+  HDBOMLOCK = 1 << 8                     /* lock mapped region using mlock (linux only) */
 };
 
 
