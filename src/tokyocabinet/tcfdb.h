@@ -86,7 +86,9 @@ enum {                                   /* enumeration for open modes */
   FDBOTRUNC = 1 << 3,                    /* writer truncating */
   FDBONOLCK = 1 << 4,                    /* open without locking */
   FDBOLCKNB = 1 << 5,                    /* lock without blocking */
-  FDBOTSYNC = 1 << 6                     /* synchronize every transaction */
+  FDBOTSYNC = 1 << 6,                    /* synchronize every transaction */
+  FDBOPREPOP = 1 << 7,                   /* pre-populate page tables (linux only) */
+  FDBOMLOCK = 1 << 8                     /* lock mapped region using mlock (linux only) */
 };
 
 enum {                                   /* enumeration for ID constants */

@@ -98,7 +98,9 @@ enum {                                   /* enumeration for open modes */
   BDBOTRUNC = 1 << 3,                    /* writer truncating */
   BDBONOLCK = 1 << 4,                    /* open without locking */
   BDBOLCKNB = 1 << 5,                    /* lock without blocking */
-  BDBOTSYNC = 1 << 6                     /* synchronize every transaction */
+  BDBOTSYNC = 1 << 6,                    /* synchronize every transaction */
+  BDBOPREPOP = 1 << 7,                   /* pre-populate page tables (linux only) */
+  BDBOMLOCK = 1 << 8                     /* lock mapped region using mlock (linux only) */
 };
 
 typedef struct {                         /* type of structure for a B+ tree cursor */

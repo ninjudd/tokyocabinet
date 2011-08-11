@@ -2954,6 +2954,8 @@ static bool tcbdbopenimpl(TCBDB *bdb, const char *path, int omode){
   if(omode & BDBONOLCK) homode |= HDBONOLCK;
   if(omode & BDBOLCKNB) homode |= HDBOLCKNB;
   if(omode & BDBOTSYNC) homode |= HDBOTSYNC;
+  if(omode & BDBOPREPOP) homode |= HDBOPREPOP;
+  if(omode & BDBOMLOCK) homode |= HDBOMLOCK;
   tchdbsettype(bdb->hdb, TCDBTBTREE);
   if(!tchdbopen(bdb->hdb, path, homode)) return false;
   bdb->root = 0;

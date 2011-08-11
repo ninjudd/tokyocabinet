@@ -1827,6 +1827,7 @@ static bool tcfdbopenimpl(TCFDB *fdb, const char *path, int omode){
     if(sbuf.st_size > fdb->fsiz) fdb->fsiz = sbuf.st_size;
   }
   void *map = mmap(0, fdb->limsiz, PROT_READ | ((omode & FDBOWRITER) ? PROT_WRITE : 0),
+                   ((omode & FDBOPREPOP) ? MAP_POPULATE : 0) | ((omode & FDBOMLOCK) ? MAP_LOCKED : 0) |
                    MAP_SHARED, fd, 0);
   if(map == MAP_FAILED){
     tcfdbsetecode(fdb, TCEMMAP, __FILE__, __LINE__, __func__);

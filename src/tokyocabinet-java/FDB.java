@@ -101,6 +101,10 @@ public class FDB implements DBM {
   public static final int ONOLCK = 1 << 4;
   /** open mode: lock without blocking */
   public static final int OLCKNB = 1 << 5;
+  /** open mode: pre-populate page tables (linux only) */
+  public static final int OPREPOP = 1 << 7;
+  /** open mode: lock mapped region using mlock (linux only) */
+  public static final int OMLOCK = 1 << 8;
   //----------------------------------------------------------------
   // public static methods
   //----------------------------------------------------------------
