@@ -536,7 +536,7 @@ class BDBTest {
       eprint(bdb, "getlist");
       err = true;
     }
-    List pvals = new ArrayList();
+    List<String> pvals = new ArrayList<String>();
     pvals.add("hop");
     pvals.add("step");
     pvals.add("jump");

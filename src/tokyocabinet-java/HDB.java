@@ -381,21 +381,14 @@ public class HDB implements DBM {
    * It returns an empty list even if no record corresponds.
    * @note This function may be very slow because every key in the database is scanned.
    */
-  public native List fwmkeys(byte[] prefix, int max);
+  public native List<byte[]> fwmkeys(byte[] prefix, int max);
   /**
    * Get forward matching keys.
    * The same as `fwmkeys(prefix.getBytes(), max)'.  However, type of each element is `String'.
    * @see #fwmkeys(byte[], int)
    */
-  public List fwmkeys(String prefix, int max){
-    List keys = fwmkeys(prefix.getBytes(), max);
-    List skeys = new ArrayList();
-    Iterator it = keys.iterator();
-    while(it.hasNext()){
-      byte[] key = (byte[])it.next();
-      skeys.add(Util.otos(key));
-    }
-    return skeys;
+  public List<String> fwmkeys(String prefix, int max){
+    return Util.objectsAsStrings(fwmkeys(prefix.getBytes(), max));
   }
   /**
    * Add an integer to a record.

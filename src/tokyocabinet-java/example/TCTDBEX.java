@@ -15,7 +15,7 @@ public class TCTDBEX {
 
     // store a record
     String pkey = new Long(tdb.genuid()).toString();
-    Map cols = new HashMap();
+    Map<String, String> cols = new HashMap<String, String>();
     cols.put("name", "mikio");
     cols.put("age", "30");
     cols.put("lang", "ja,en,c");
@@ -25,7 +25,7 @@ public class TCTDBEX {
     }
 
     // store another record
-    cols = new HashMap();
+    cols = new HashMap<String, String>();
     cols.put("name", "falcon");
     cols.put("age", "31");
     cols.put("lang", "ja");
@@ -41,12 +41,8 @@ public class TCTDBEX {
     qry.addcond("lang", TDBQRY.QCSTROR, "ja,en");
     qry.setorder("name", TDBQRY.QOSTRASC);
     qry.setlimit(10, 0);
-    List res = qry.search();
-    Iterator it = res.iterator();
-    while(it.hasNext()){
-      String rkey = new String((byte[])it.next());
-      Map rcols = tdb.get(rkey);
-      System.out.println("name:" + rcols.get("name"));
+    for(byte[] key : qry.search()){
+        System.out.println("name:" + tdb.get(new String(key)).get("name"));
     }
 
     // close the database

@@ -274,7 +274,7 @@ class TDBTest {
     }
     for(int i = 1; i <= rnum; i++){
       long id = tdb.genuid();
-      Map cols = new HashMap();
+      Map<String, Object> cols = new HashMap<String, Object>();
       cols.put("str", new Long(id));
       cols.put("num", new Integer(RND.nextInt((int)id) + 1));
       cols.put("type", new Integer(RND.nextInt(32) + 1));
@@ -436,7 +436,7 @@ class TDBTest {
     STDOUT.println("writing:");
     for(int i = 1; i <= rnum; i++){
       long id = tdb.genuid();
-      Map cols = new HashMap();
+      Map<String, Object> cols = new HashMap<String, Object>();
       cols.put("str", new Long(id));
       cols.put("num", new Integer(RND.nextInt((int)id) + 1));
       cols.put("type", new Integer(RND.nextInt(32) + 1));
@@ -597,10 +597,10 @@ class TDBTest {
     int itnum = (int)tdb.rnum();
     class MyProc implements TDBQRYPROC {
       int icnt = 0;
-      public int proc(byte[] key, Map cols){
-        icnt += 1;
-        cols.put("icnt", new Integer(icnt).toString());
-        return QPPUT;
+        public int proc(byte[] key, Map<String, byte[]> cols){
+          icnt += 1;
+          cols.put("icnt", new Integer(icnt).toString().getBytes());
+          return QPPUT;
       }
     }
     MyProc proc = new MyProc();

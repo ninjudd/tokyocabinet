@@ -368,9 +368,9 @@ class ADBTest {
       } else {
         cname = "getlist";
       }
-      List args = new ArrayList();
-      args.add(new Integer(RND.nextInt(rnum)));
-      args.add(new Integer(RND.nextInt(rnum)));
+      List<Integer> args = new ArrayList<Integer>();
+      args.add(RND.nextInt(rnum));
+      args.add(RND.nextInt(rnum));
       if(adb.misc(cname, args) == null){
         eprint(adb, "(validation)");
         err = true;

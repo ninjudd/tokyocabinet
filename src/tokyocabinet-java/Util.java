@@ -120,6 +120,35 @@ public class Util {
     if(minus) sb.insert(0, '-');
     return sb.toString();
   }
+
+  /**
+   * Convert several objects to strings.
+   * @param objs some objects.
+   * @return a list of strings from each object.
+   */
+  public static List<String> objectsAsStrings(List<?> objs){
+    if (objs == null) objs = Collections.emptyList();
+    List<String> skeys = new ArrayList<String>(objs.size());
+    for(Object o : objs){
+        skeys.add(Util.otos(o));
+    }
+    return skeys;
+  }
+
+  /**
+   * Convert strings to byte arrays.
+   * @param strs some strings.
+   * @return a list of bytes in each string
+   */
+  public static List<byte[]> stringsAsBytes(List<String> strs){
+    if (strs == null) strs = Collections.emptyList();
+    List<byte[]> skeys = new ArrayList<byte[]>(strs.size());
+    for(String s : strs){
+        skeys.add(s.getBytes());
+    }
+    return skeys;
+  }
+
   /**
    * Convert an object to string.
    * @param obj an object.

@@ -46,7 +46,7 @@ public interface TDBQRYPROC {
    * @return Flags of the post treatment by bitwise-or: `TDBQRYPROC.QPPUT' to modify the record,
    * `TDBQRYPROC.QPOUT' to remove the record, `TDBQRYPROC.QPSTOP' to stop the iteration.
    */
-  public int proc(byte[] pkey, Map cols);
+    public int proc(byte[] pkey, Map<String, byte[]> cols);
 }
 
 

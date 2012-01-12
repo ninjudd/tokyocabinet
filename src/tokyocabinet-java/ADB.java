@@ -232,21 +232,14 @@ public class ADB implements DBM {
    * It returns an empty list even if no record corresponds.
    * @note This function may be very slow because every key in the database is scanned.
    */
-  public native List fwmkeys(byte[] prefix, int max);
+  public native List<byte[]> fwmkeys(byte[] prefix, int max);
   /**
    * Get forward matching keys.
    * The same as `fwmkeys(prefix.getBytes(), max)'.  However, type of each element is `String'.
    * @see #fwmkeys(byte[], int)
    */
-  public List fwmkeys(String prefix, int max){
-    List keys = fwmkeys(prefix.getBytes(), max);
-    List skeys = new ArrayList();
-    Iterator it = keys.iterator();
-    while(it.hasNext()){
-      byte[] key = (byte[])it.next();
-      skeys.add(Util.otos(key));
-    }
-    return skeys;
+  public List<String> fwmkeys(String prefix, int max){
+    return Util.objectsAsStrings(fwmkeys(prefix.getBytes(), max));
   }
   /**
    * Add an integer to a record.
@@ -375,11 +368,11 @@ public class ADB implements DBM {
    * @param args a list object of arguments.  If it is `null', no argument is specified.
    * @return If successful, it is an array of the result.  `null' is returned on failure.
    */
-  public List misc(String name, List args){
-    if(args == null) args = new ArrayList();
+  public List<byte[]> misc(String name, List<?> args){
+    if(args == null) args = new ArrayList<Object>();
     byte[][] ary;
     ary = new byte[args.size()][];
-    Iterator it = args.iterator();
+    Iterator<?> it = args.iterator();
     int anum = 0;
     while(it.hasNext()){
       Object arg = it.next();
@@ -387,11 +380,7 @@ public class ADB implements DBM {
     }
     byte[][] res = miscimpl(name, ary);
     if(res != null){
-      List list = new ArrayList();
-      for(int i = 0; i < res.length; i++){
-        list.add(res[i]);
-      }
-      return list;
+      return Arrays.asList(res);
     }
     return null;
   }

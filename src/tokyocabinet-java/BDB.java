@@ -343,20 +343,14 @@ public class BDB implements DBM {
    * @note If a record with the same key exists in the database, the new records are placed
    * after the existing one.
    */
-  public native boolean putlist(byte[] key, List values);
+  public native boolean putlist(byte[] key, List<byte[]> values);
   /**
    * Store records with allowing duplication of keys.
    * The same as `putlist(key.getBytes(), value)'.  Type of each element should be `String'.
    * @see #putlist(byte[], List)
    */
-  public boolean putlist(String key, List values){
-    List avalues = new ArrayList();
-    Iterator it = values.iterator();
-    while(it.hasNext()){
-      String value = (String)it.next();
-      avalues.add(value.getBytes());
-    }
-    return putlist(key.getBytes(), avalues);
+  public boolean putlist(String key, List<String> values){
+    return putlist(key.getBytes(), Util.stringsAsBytes(values));
   }
   /**
    * Remove a record.
@@ -411,24 +405,14 @@ public class BDB implements DBM {
    * @return If successful, it is a list of the values of the corresponding records.  `null' is
    * returned if no record corresponds.  Type of each element is `byte[]'.
    */
-  public native List getlist(byte[] key);
+  public native List<byte[]> getlist(byte[] key);
   /**
    * Retrieve records.
    * The same as `getlist(key.getBytes())'.  However, type of each element is `String'.
    * @see #get(byte[])
    */
-  public List getlist(String key){
-    List values = getlist(key.getBytes());
-    if(values != null){
-      List svalues = new ArrayList();
-      Iterator it = values.iterator();
-      while(it.hasNext()){
-        byte[] value = (byte[])it.next();
-        svalues.add(Util.otos(value));
-      }
-      return svalues;
-    }
-    return null;
+  public List<String> getlist(String key){
+    return Util.objectsAsStrings(getlist(key.getBytes()));
   }
   /**
    * Get the number of records corresponding a key.
@@ -499,22 +483,15 @@ public class BDB implements DBM {
    * @return a list object of the keys of the corresponding records.  This method does never fail.
    * It returns an empty list even if no record corresponds.
    */
-  public native List range(byte[] bkey, boolean binc, byte[] ekey, boolean einc, int max);
+  public native List<byte[]> range(byte[] bkey, boolean binc, byte[] ekey, boolean einc, int max);
   /**
    * Get keys of ranged records.
    * The same as `range(bkey.getBytes(), binc, ekey.getBytes(), einc, max)'.  However, type of
    * each element is `String'.
    * @see #range(byte[], boolean, byte[], boolean, int)
    */
-  public List range(String bkey, boolean binc, String ekey, boolean einc, int max){
-    List keys = range(bkey.getBytes(), binc, ekey.getBytes(), einc, max);
-    List skeys = new ArrayList();
-    Iterator it = keys.iterator();
-    while(it.hasNext()){
-      byte[] key = (byte[])it.next();
-      skeys.add(Util.otos(key));
-    }
-    return skeys;
+  public List<String> range(String bkey, boolean binc, String ekey, boolean einc, int max){
+    return Util.objectsAsStrings(range(bkey.getBytes(), binc, ekey.getBytes(), einc, max));
   }
   /**
    * Get forward matching keys.
@@ -524,21 +501,14 @@ public class BDB implements DBM {
    * @return a list object of the keys of the corresponding records.  This method does never fail.
    * It returns an empty list even if no record corresponds.
    */
-  public native List fwmkeys(byte[] prefix, int max);
+  public native List<byte[]> fwmkeys(byte[] prefix, int max);
   /**
    * Get forward matching keys.
    * The same as `fwmkeys(prefix.getBytes(), max)'.  However, type of each element is `String'.
    * @see #fwmkeys(byte[], int)
    */
-  public List fwmkeys(String prefix, int max){
-    List keys = fwmkeys(prefix.getBytes(), max);
-    List skeys = new ArrayList();
-    Iterator it = keys.iterator();
-    while(it.hasNext()){
-      byte[] key = (byte[])it.next();
-      skeys.add(Util.otos(key));
-    }
-    return skeys;
+  public List<String> fwmkeys(String prefix, int max){
+    return Util.objectsAsStrings(fwmkeys(prefix.getBytes(), max));
   }
   /**
    * Add an integer to a record.

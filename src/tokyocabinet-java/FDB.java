@@ -336,28 +336,21 @@ public class FDB implements DBM {
    * @return a list object of the keys of the corresponding records.  This method does never fail.
    * It returns an empty list even if no record corresponds.
    */
-  public native List range(byte[] interval, int max);
+  public native List<byte[]> range(byte[] interval, int max);
   /**
    * Get keys with an interval notation.
    * The same as `range(prefix, max)'.  However, type of each element is `String'.
    * @see #range(byte[], int)
    */
-  public List range(String interval, int max){
-    List keys = range(interval.getBytes(), max);
-    List skeys = new ArrayList();
-    Iterator it = keys.iterator();
-    while(it.hasNext()){
-      byte[] key = (byte[])it.next();
-      skeys.add(Util.otos(key));
-    }
-    return skeys;
+  public List<String> range(String interval, int max){
+    return Util.objectsAsStrings(range(interval.getBytes(), max));
   }
   /**
    * Get forward matching keys.
    * The same as `range(prefix, max)'.  It is for compatibility only.
    * @see #range(byte[], int)
    */
-  public List fwmkeys(byte[] prefix, int max){
+  public List<byte[]> fwmkeys(byte[] prefix, int max){
     return range(prefix, max);
   }
   /**
@@ -365,7 +358,7 @@ public class FDB implements DBM {
    * The same as `range(prefix.getBytes(), max)'.  It is for compatibility only.
    * @see #range(String, int)
    */
-  public List fwmkeys(String prefix, int max){
+  public List<String> fwmkeys(String prefix, int max){
     return range(prefix, max);
   }
   /**

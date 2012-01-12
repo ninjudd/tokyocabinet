@@ -330,11 +330,11 @@ public class TDB {
    * `null' is returned if no record corresponds.  Type of each key is `String'.  Type of each
    * value is `byte[]'.
    */
-  public Map get(byte[] pkey){
+  public Map<String, byte[]> get(byte[] pkey){
     byte[][] colary = getimpl(pkey);
     if(colary == null) return null;
     int cnum = colary.length;
-    HashMap cols = new HashMap(cnum + 1);
+    HashMap<String, byte[]> cols = new HashMap<String, byte[]>(cnum + 1);
     cnum--;
     for(int i = 0; i < cnum; i += 2){
       cols.put(Util.otos(colary[i]), colary[i+1]);
@@ -346,11 +346,11 @@ public class TDB {
    * The same as `get(pkey.getBytes())'.  However, type of each key and value is `String'.
    * @see #get(byte[])
    */
-  public Map get(String pkey){
+  public Map<String, String> get(String pkey){
     byte[][] colary = getimpl(pkey.getBytes());
     if(colary == null) return null;
     int cnum = colary.length;
-    HashMap cols = new HashMap(cnum + 1);
+    HashMap<String, String> cols = new HashMap<String, String>(cnum + 1);
     cnum--;
     for(int i = 0; i < cnum; i += 2){
       cols.put(Util.otos(colary[i]), Util.otos(colary[i+1]));
@@ -408,21 +408,14 @@ public class TDB {
    * It returns an empty list even if no record corresponds.
    * @note This function may be very slow because every key in the database is scanned.
    */
-  public native List fwmkeys(byte[] prefix, int max);
+  public native List<byte[]> fwmkeys(byte[] prefix, int max);
   /**
    * Get forward matching primary keys.
    * The same as `fwmkeys(prefix.getBytes(), max)'.  However, type of each element is `String'.
    * @see #fwmkeys(byte[], int)
    */
-  public List fwmkeys(String prefix, int max){
-    List pkeys = fwmkeys(prefix.getBytes(), max);
-    List skeys = new ArrayList();
-    Iterator it = pkeys.iterator();
-    while(it.hasNext()){
-      byte[] pkey = (byte[])it.next();
-      skeys.add(Util.otos(pkey));
-    }
-    return skeys;
+  public List<String> fwmkeys(String prefix, int max){
+    return Util.objectsAsStrings(fwmkeys(prefix.getBytes(), max));
   }
   /**
    * Add an integer to a record.

@@ -182,7 +182,7 @@ public class TDBQRY {
    * @return a list object of the primary keys of the corresponding records.  This method does
    * never fail.  It returns an empty array even if no record corresponds.
    */
-  public native List search();
+  public native List<byte[]> search();
   /**
    * Remove each corresponding record.
    * @return If successful, the return value is true, else, it is false.
@@ -210,7 +210,7 @@ public class TDBQRY {
    * @note If the first query object has the order setting, the result array is sorted by the
    * order.
    */
-  public native List metasearch(TDBQRY[] others, int type);
+  public native List<byte[]> metasearch(TDBQRY[] others, int type);
   /**
    * Generate keyword-in-context strings.
    * @param cols a hash containing columns.
