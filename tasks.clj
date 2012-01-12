@@ -49,7 +49,9 @@
               src    (file "src" tokyocabinet-java)]
           (ant ExecTask {:executable "./configure" :dir src :failonerror true}
                (args prefix)
-               (env {"JAVA_HOME" (System/getProperty "java.home") "CFLAGS" cflags}))
+               (env {"JAVA_HOME" (or (System/getenv "JAVA_HOME")
+                                     (System/getProperty "java.home"))
+                     "CFLAGS" cflags}))
           (let [token "\nCFLAGS ="] ; hack because configure doesn't set CFLAGS correctly in Makefile
             (ant Replace {:file (file src "Makefile") :token token :value (str token " " cflags)}))
           (fix-install-path src "jtokyocabinet")
