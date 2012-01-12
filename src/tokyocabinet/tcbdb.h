@@ -114,7 +114,8 @@ typedef struct {                         /* type of structure for a B+ tree curs
 enum {                                   /* enumeration for cursor put mode */
   BDBCPCURRENT,                          /* current */
   BDBCPBEFORE,                           /* before */
-  BDBCPAFTER                             /* after */
+  BDBCPAFTER,                            /* after */
+  BDBCPCAT,                              /* concatenate values */
 };
 
 

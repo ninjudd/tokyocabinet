@@ -3831,6 +3831,22 @@ static bool tcbdbcurputimpl(BDBCUR *cur, const char *vbuf, int vsiz, int cpmode)
   int psiz = TCALIGNPAD(rec->ksiz);
   BDBREC *orec = rec;
   switch(cpmode){
+    case BDBCPCAT:
+      if(cur->vidx < 1){
+        leaf->size += vsiz;
+        TCREALLOC(rec, rec, sizeof(*rec) + rec->ksiz + psiz + rec->vsiz + vsiz + 1);
+        if(rec != orec){
+          tcptrlistover(recs, cur->kidx, rec);
+          dbuf = (char *)rec + sizeof(*rec);
+        }
+        memcpy(dbuf + rec->ksiz + psiz + rec->vsiz, vbuf, vsiz);
+        rec->vsiz += vsiz;
+        dbuf[rec->ksiz+psiz+rec->vsiz] = '\0';
+      } else {
+        leaf->size += vsiz;
+        tclistcat(rec->rest, cur->vidx - 1, vbuf, vsiz);
+      }
+      break;
     case BDBCPCURRENT:
       if(cur->vidx < 1){
         leaf->size += vsiz - rec->vsiz;
