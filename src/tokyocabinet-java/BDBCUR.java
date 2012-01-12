@@ -43,6 +43,8 @@ public class BDBCUR {
   public static final int CPBEFORE = 1;
   /** cursor put mode: after */
   public static final int CPAFTER = 2;
+  /** cursor put mode: concatenate values */
+  public static final int CPCAT = 3;
   //----------------------------------------------------------------
   // private static methods
   //----------------------------------------------------------------
