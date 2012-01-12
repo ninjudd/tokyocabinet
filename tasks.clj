@@ -42,7 +42,8 @@
                (args prefix)
                (env {"CFLAGS" arch "LDFLAGS" arch}))
           (fix-install-path src "tokyocabinet")
-          (ant ExecTask {:executable "make" :dir src :failonerror true})
+          (ant ExecTask {:executable "make" :dir src :failonerror true}
+               (args "-j10"))
           (ant ExecTask {:executable "make" :dir src :failonerror true}
                (args "install")))
         (let [cflags (format " %s -I%s/include -L%s/lib " arch dest dest)
