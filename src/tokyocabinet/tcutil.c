@@ -699,6 +699,24 @@ char *tclistremove2(TCLIST *list, int index){
   return rv;
 }
 
+/* Add bytes to the end of an element at the specified location of a list object. */
+void tclistcat(TCLIST *list, int index, const void *ptr, int size){
+  int oldsize = list->array[index].size;
+  int newsize = oldsize + size + 1;
+  assert(list && index >= 0 && ptr && size >= 0);
+  if(index >= list->num) return;
+  index += list->start;
+  TCREALLOC(list->array[index].ptr, list->array[index].ptr, newsize);
+  memcpy(list->array[index].ptr + oldsize, ptr, size);
+  list->array[index].size = newsize;
+  list->array[index].ptr[newsize] = '\0';
+}
+
+/* Add string to the end of an element at the specified location of a list object. */
+void tclistcat2(TCLIST *list, int index, const char *str){
+  assert(str);
+  tclistcat(list, index, (void *)str, strlen(str));
+}
 
 /* Overwrite an element at the specified location of a list object. */
 void tclistover(TCLIST *list, int index, const void *ptr, int size){

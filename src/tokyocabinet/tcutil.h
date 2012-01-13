@@ -479,6 +479,21 @@ void tclistover(TCLIST *list, int index, const void *ptr, int size);
    If `index' is equal to or more than the number of elements, this function has no effect. */
 void tclistover2(TCLIST *list, int index, const char *str);
 
+/* Add bytes to the end of an element at the specified location of a list object.
+   `list' specifies the list object.
+   `index' specifies the index of the element to be overwritten.
+   `ptr' specifies the pointer to the region of the new content.
+   `size' specifies the size of the new content.
+   If `index' is equal to or more than the number of elements, this function has no effect. */
+void tclistcat(TCLIST *list, int index, const void *ptr, int size);
+
+/* Add string to the end of an element at the specified location of a list object.
+   `list' specifies the list object.
+   `index' specifies the index of the element to be overwritten.
+   `str' specifies the pointer to the region of the new content.
+   `size' specifies the string of the new content.
+   If `index' is equal to or more than the number of elements, this function has no effect. */
+void tclistcat(TCLIST *list, int index, const void *ptr, int size);
 
 /* Sort elements of a list object in lexical order.
    `list' specifies the list object. */
