@@ -6,17 +6,6 @@
             [clojure.string :as string])
   (:import java.util.zip.ZipFile))
 
-(def tokyocabinet      "tokyocabinet")
-(def tokyocabinet-java "tokyocabinet-java")
-
-#_(defn clean [srcdir]
-  (when (.exists (file srcdir "Makefile"))
-    (ant ExecTask {:dir (file srcdir) :executable "make"} (args "distclean"))))
-
-#_(deftask clean
-  (clean (file "src" tokyocabinet))
-  (clean (file "src" tokyocabinet-java)))
-
 (defn replace-text [f re text]
   (spit f (string/replace (slurp f) re text)))
 
@@ -53,13 +42,13 @@
       (let [prefix  (str "--prefix=" dest)
             classes (file "classes")
             arch    (case os-arch :x86_64 "-m64" :x86 "-m32" "")
-            src     (file "src" tokyocabinet)]
+            src     (file "src" "tokyocabinet")]
         (sh "./configure" prefix :dir src :env {"CFLAGS" arch "LDFLAGS" arch}) 
         (fix-install-path src "tokyocabinet")
         (sh "make" "-j" :dir src)
         (sh "make" "install" :dir src)
         (let [cflags (format " %s -I%s/include -L%s/lib " arch dest dest)
-              src    (file "src" tokyocabinet-java)]
+              src    (file "src" "tokyocabinet-java")]
           (sh "./configure" prefix 
               :dir src 
               :env {"JAVA_HOME" (or (System/getenv "JAVA_HOME")
