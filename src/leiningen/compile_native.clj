@@ -1,9 +1,9 @@
 (ns leiningen.compile-native
   (:use [leiningen.util.paths :only [get-os get-arch]]
-        [clojure.java.shell :only [sh]]
         [clojure.java.io :only [copy file]])
   (:require [fs.core :as fs]
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [conch.core :as sh])
   (:import java.util.zip.ZipFile))
 
 (defn replace-text [f re text]
@@ -43,22 +43,25 @@
             classes (file "classes")
             arch    (case os-arch :x86_64 "-m64" :x86 "-m32" "")
             src     (file "src" "tokyocabinet")]
-        (sh "./configure" prefix :dir src :env {"CFLAGS" arch "LDFLAGS" arch}) 
+        (sh/stream-to-out 
+          (sh/proc "./configure" prefix :dir src :env {"CFLAGS" arch "LDFLAGS" arch})
+          :out) 
         (fix-install-path src "tokyocabinet")
-        (sh "make" "-j" :dir src)
-        (sh "make" "install" :dir src)
+        (sh/stream-to-out (sh/proc "make" "-j" :dir src) :out)
+        (sh/stream-to-out (sh/proc "make" "install" :dir src):out )
         (let [cflags (format " %s -I%s/include -L%s/lib " arch dest dest)
               src    (file "src" "tokyocabinet-java")]
-          (sh "./configure" prefix 
-              :dir src 
-              :env {"JAVA_HOME" (or (System/getenv "JAVA_HOME")
-                                    (System/getProperty "java.home"))
-                    "CFLAGS" cflags}) 
+          (sh/stream-to-out (sh/proc "./configure" prefix 
+                                     :dir src 
+                                     :env {"JAVA_HOME" (or (System/getenv "JAVA_HOME")
+                                                           (System/getProperty "java.home"))
+                                           "CFLAGS" cflags})
+                            :out) 
           (let [token "\nCFLAGS ="] ; hack because configure doesn't set CFLAGS correctly in Makefile
             (replace-text (file src "Makefile") token (str token " " cflags)))
           (fix-install-path src "jtokyocabinet")
-          (sh "make" :dir src)
-          (sh "make" "install" :dir src))
+          (sh/stream-to-out (sh/proc "make" :dir src) :out)
+          (sh/stream-to-out (sh/proc "make" "install" :dir src) :out))
         (copy-entries (str dest "/lib/tokyocabinet.jar") classes #(.endsWith (str %) ".class"))
         (fs/delete (file dest "lib/tokyocabinet.jar"))
         (fs/delete-dir (file dest "lib/pkgconfig"))))))
