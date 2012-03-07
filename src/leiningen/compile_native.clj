@@ -1,5 +1,5 @@
 (ns leiningen.compile-native
-  (:use [leiningen.util.paths :only [get-os get-arch]]
+  (:use [leiningen.core.eval :only [get-os get-arch]]
         [clojure.java.io :only [copy file]])
   (:require [fs.core :as fs]
             [clojure.string :as string]
@@ -36,7 +36,7 @@
 (defn compile-native [project]
   (let [os-name (name (get-os))
         os-arch (name (get-arch))
-        dest    (fs/file "build" "native" os-name os-arch)]
+        dest    (fs/file (:target-path project) "native" os-name os-arch)]
     (when-not (.exists dest)
       (println (format "Compiling tokyocabinet for %s/%s" os-name os-arch))
       (let [prefix  (str "--prefix=" dest)
@@ -50,7 +50,7 @@
         (sh/stream-to-out (sh/proc "make" "-j" :dir src) :out)
         (sh/stream-to-out (sh/proc "make" "install" :dir src):out )
         (let [cflags (format " %s -I%s/include -L%s/lib " arch dest dest)
-              src    (file "src" "tokyocabinet-java")]
+              src    (file "src" "tokyocabinet")]
           (sh/stream-to-out (sh/proc "./configure" prefix 
                                      :dir src 
                                      :env {"JAVA_HOME" (or (System/getenv "JAVA_HOME")

@@ -1,5 +1,7 @@
 (defproject tokyocabinet "1.24.2"
+  :min-lein-version "2.0.0"
   :description "native tokyo cabinet libraries"
-  :dependencies [[clojure "1.3.0"]]
-  :dev-dependencies [[fs "1.1.2"]
-                     [conch "0.2.0"]])
+  :dependencies [[fs "1.1.2"]
+                 [conch "0.2.0"]]
+  :java-source-paths ["src"]
+  :eval-in-leiningen true)

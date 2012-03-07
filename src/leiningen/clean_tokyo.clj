@@ -6,7 +6,7 @@
   (when (.exists (file srcdir "Makefile"))
     (sh/stream-to-out (sh/proc "make" "distclean" :dir (file srcdir)) :out)))
 
-(defn clean-tokyo []
-  (clean (file "src/tokyocabinet"))
-  (clean (file "src/tokyocabinet-java")))
+(defn clean-tokyo [_]
+  (clean (file "src/tokyocabinet-native"))
+  (clean (file "src/tokyocabinet")))
 
