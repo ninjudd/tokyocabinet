@@ -3,6 +3,6 @@
 *~
 pom.xml
 lib
-build
+target
 classes
 *.o
