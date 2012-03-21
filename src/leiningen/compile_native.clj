@@ -42,21 +42,21 @@
       (let [prefix  (str "--prefix=" dest)
             classes (file "classes")
             arch    (case os-arch :x86_64 "-m64" :x86 "-m32" "")
-            src     (file "src" "tokyocabinet")]
-        (sh/stream-to-out 
+            src     (file "src" "tokyocabinet-native")]
+        (sh/stream-to-out
           (sh/proc "./configure" prefix :dir src :env {"CFLAGS" arch "LDFLAGS" arch})
-          :out) 
-        (fix-install-path src "tokyocabinet")
+          :out)
+        (fix-install-path src "tokyocabinet-native")
         (sh/stream-to-out (sh/proc "make" "-j" :dir src) :out)
         (sh/stream-to-out (sh/proc "make" "install" :dir src):out )
         (let [cflags (format " %s -I%s/include -L%s/lib " arch dest dest)
               src    (file "src" "tokyocabinet")]
-          (sh/stream-to-out (sh/proc "./configure" prefix 
-                                     :dir src 
+          (sh/stream-to-out (sh/proc "./configure" prefix
+                                     :dir src
                                      :env {"JAVA_HOME" (or (System/getenv "JAVA_HOME")
                                                            (System/getProperty "java.home"))
                                            "CFLAGS" cflags})
-                            :out) 
+                            :out)
           (let [token "\nCFLAGS ="] ; hack because configure doesn't set CFLAGS correctly in Makefile
             (replace-text (file src "Makefile") token (str token " " cflags)))
           (fix-install-path src "jtokyocabinet")
