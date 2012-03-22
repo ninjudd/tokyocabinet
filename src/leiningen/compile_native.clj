@@ -20,8 +20,7 @@
           rpath "-Wl,-R,'$$ORIGIN'"]
       (replace-text (file src "Makefile") token (str token " " rpath)))))
 
-;; This was copied from Leiningen (and heavily modified). Probably want
-;; to move this to fs.
+;; This was copied from Leiningen (and heavily modified). Probably want to move this to fs.
 (defn copy-entries
   [in out pred]
   (let [zip (ZipFile. in)]
@@ -51,8 +50,7 @@
     (configure src target {"CFLAGS" arch-flag "LDFLAGS" arch-flag})
     (fix-install-path os src "tokyocabinet-native")
     (make src "-j")
-    (make src "install")
-    (fs/delete-dir (file target "lib/pkgconfig"))))
+    (make src "install")))
 
 (defn make-java [target os arch-flag]
   (let [src    (file target "tokyocabinet")
@@ -64,10 +62,7 @@
       (replace-text (file src "Makefile") token (str token " " cflags)))
     (fix-install-path os src "jtokyocabinet")
     (make src)
-    (make src "install")
-    (copy-entries (str target "/lib/tokyocabinet.jar") (file "classes")
-                  #(.endsWith (str %) ".class"))
-    (fs/delete (file target "lib/tokyocabinet.jar"))))
+    (make src "install")))
 
 (defn compile-tokyo [target os arch-flag]
   ;; copy source so we can compile for multiple architectures
@@ -82,6 +77,8 @@
           dest   (file "resources" "native" os arch)]
       (println (format "Compiling tokyocabinet for %s/%s" os arch))
       (compile-tokyo target os arch-flag)
-      ;; we can't cross-compile yet, so copy native libs into resources/ so we can commit them
+      ;; we can't cross-compile yet, so copy lib and classes into resources/ so we can commit them
       (fs/delete-dir dest)
-      (fs/copy-dir (file target "lib") dest))))
+      (fs/copy-dir (file target "lib") dest)
+      (copy-entries (file target "lib" "tokyocabinet.jar") (file "resources")
+                    #(.endsWith (str %) ".class")))))
