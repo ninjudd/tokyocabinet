@@ -36,13 +36,13 @@
   (fs/chmod "+x" (file src "configure"))
   (sh/stream-to-out
    (sh/proc "./configure" (str "--prefix=" target)
-            :dir src :env env)
+            :dir src :env env :verbose :very)
    :out))
 
 (defn make [src & params]
   (sh/stream-to-out
    (apply sh/proc "make"
-          (concat params [:dir src]))
+          (concat params [:dir src :verbose :very]))
    :out))
 
 (defn make-native [target os arch-flag]
