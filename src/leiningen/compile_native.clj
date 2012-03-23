@@ -75,8 +75,12 @@
   (make-native target os arch-flag)
   (make-java   target os arch-flag))
 
-(defn compile-native [project]
-  (doseq [[arch arch-flag] {"x86_64" "-m64", "x86" "-m32"}]
+(def arch-flags {"x86_64" "-m64", "x86" "-m32"})
+
+(defn compile-native [project & archs]
+  (doseq [[arch arch-flag] (if (seq archs)
+                             (select-keys arch-flags archs)
+                             arch-flags)]
     (let [os     (name (get-os))
           target (file (:target-path project) os arch)
           dest   (file "resources" "native" os arch)]
