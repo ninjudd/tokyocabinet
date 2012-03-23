@@ -50,7 +50,8 @@
     (configure src target {"CFLAGS" arch-flag "LDFLAGS" arch-flag})
     (fix-install-path os src "tokyocabinet-native")
     (make src "-j")
-    (make src "install")))
+    (make src "install")
+    (fs/delete-dir (file target "lib" "pkgconfig"))))
 
 (defn make-java [target os arch-flag]
   (let [src    (file target "tokyocabinet")
@@ -62,7 +63,11 @@
       (replace-text (file src "Makefile") token (str token " " cflags)))
     (fix-install-path os src "jtokyocabinet")
     (make src)
-    (make src "install")))
+    (make src "install")
+    (let [jar (file target "lib" "tokyocabinet.jar")]
+      (copy-entries jar (file "resources")
+                    #(.endsWith (str %) ".class"))
+      (fs/delete jar))))
 
 (defn compile-tokyo [target os arch-flag]
   ;; copy source so we can compile for multiple architectures
@@ -79,6 +84,4 @@
       (compile-tokyo target os arch-flag)
       ;; we can't cross-compile yet, so copy lib and classes into resources/ so we can commit them
       (fs/delete-dir dest)
-      (fs/copy-dir (file target "lib") dest)
-      (copy-entries (file target "lib" "tokyocabinet.jar") (file "resources")
-                    #(.endsWith (str %) ".class")))))
+      (fs/copy-dir (file target "lib") dest))))
