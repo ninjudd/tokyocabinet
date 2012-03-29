@@ -48,7 +48,7 @@
 (defn make-native [target os arch-flag]
   (let [src (file target "tokyocabinet-native")]
     (configure src target {"CFLAGS" arch-flag "LDFLAGS" arch-flag})
-    (fix-install-path os src "tokyocabinet-native")
+    (fix-install-path os src "tokyocabinet")
     (make src "-j")
     (make src "install")
     (fs/delete-dir (file target "lib" "pkgconfig"))))
