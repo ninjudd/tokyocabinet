@@ -4,7 +4,7 @@
             :url "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html"}
   :min-lein-version "2.0.0"
   :description "native tokyo cabinet libraries"
-  :dependencies [[fs "1.1.2"]
-                 [conch "0.2.4"]]
-  :source-paths ["somewhereovertherainbow"]
-  :eval-in-leiningen true)
+  :profiles {:dev {:dependencies [[fs "1.1.2"]
+                                  [conch "0.2.4"]]}}
+  :omit-source true
+  :eval-in :leiningen)
