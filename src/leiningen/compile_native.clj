@@ -64,7 +64,7 @@
     (fix-install-path os src "jtokyocabinet")
     (make src)
     (make src "install")
-    (let [jar (file target "lib" "tokyocabinet.jar")]
+    (let [jar (file target "tokyocabinet" "tokyocabinet.jar")]
       (copy-entries jar (file "resources")
                     #(.endsWith (str %) ".class"))
       (fs/delete jar))))
