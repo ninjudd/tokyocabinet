@@ -1,8 +1,7 @@
-.cake
+.lein*
 *.jar
 *~
 pom.xml
-lib
 target
-classes
+*.class
 *.o
