@@ -251,6 +251,9 @@ int tchdbecode(TCHDB *hdb){
 
 /* Set mutual exclusion control of a hash database object for threading. */
 bool tchdbsetmutex(TCHDB *hdb){
+  FILE* log = fopen("/tmp/spit", "a");
+  fprintf(log, "==========================\n");
+
   assert(hdb);
   if(!TCUSEPTHREAD) return true;
   if(hdb->mmtx || hdb->fd >= 0){
@@ -261,15 +264,34 @@ bool tchdbsetmutex(TCHDB *hdb){
   pthread_mutexattr_init(&rma);
   TCMALLOC(hdb->mmtx, sizeof(pthread_rwlock_t));
   TCMALLOC(hdb->rmtxs, (UINT8_MAX + 1) * sizeof(pthread_rwlock_t));
+
+  fprintf(log, "size %ld\n", (UINT8_MAX + 1) * sizeof(pthread_rwlock_t));
+  fprintf(log, "ptr %p\n", hdb->rmtxs);
+
   TCMALLOC(hdb->dmtx, sizeof(pthread_mutex_t));
   TCMALLOC(hdb->wmtx, sizeof(pthread_mutex_t));
   TCMALLOC(hdb->eckey, sizeof(pthread_key_t));
   bool err = false;
   if(pthread_mutexattr_settype(&rma, PTHREAD_MUTEX_RECURSIVE) != 0) err = true;
-  if(pthread_rwlock_init(hdb->mmtx, NULL) != 0) err = true;
+
+  if(err) fprintf(log, "err\n");
+  fprintf(log, "mmtx\n");
+  fflush(log);
+  int rv = pthread_rwlock_init(hdb->mmtx, NULL);
+  fprintf(log, "mmtx %d\n", rv);
+  fflush(log);
+  if(rv != 0) err = true;
+
   for(int i = 0; i <= UINT8_MAX; i++){
-    if(pthread_rwlock_init((pthread_rwlock_t *)hdb->rmtxs + i, NULL) != 0) err = true;
+    fprintf(log, "rmtxs %d\n", i);
+    fprintf(log, "rmtxs %p\n", (pthread_rwlock_t *)hdb->rmtxs + i);
+    fflush(log);
+    rv = pthread_rwlock_init((pthread_rwlock_t *)hdb->rmtxs + i, NULL);
+    fprintf(log, "rmtxs %d %d\n", i, rv);
+    fflush(log);
+    if(rv != 0) err = true;
   }
+  fclose(log);
   if(pthread_mutex_init(hdb->dmtx, &rma) != 0) err = true;
   if(pthread_mutex_init(hdb->wmtx, NULL) != 0) err = true;
   if(pthread_key_create(hdb->eckey, NULL) != 0) err = true;
