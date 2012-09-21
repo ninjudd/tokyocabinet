@@ -57,7 +57,7 @@
   (let [src    (file target "tokyocabinet")
         cflags (format " %s -I%s/include -L%s/lib " arch-flag target target)]
     (configure src target {"JAVA_HOME" (or (System/getenv "JAVA_HOME")
-                                           (System/getProperty "java.home"))
+                                           (str (System/getProperty "java.home") "/.."))
                            "CFLAGS" cflags})
     (let [token "\nCFLAGS ="] ; hack because configure doesn't set CFLAGS correctly in Makefile
       (replace-text (file src "Makefile") token (str token " " cflags)))
