@@ -2063,7 +2063,7 @@ printf '%s\n' "$MYJAVAHOME"
 printf 'checking JVMPLATFORM... '
 if uname | grep Darwin > /dev/null
 then
-  JVMPLATFORM="mac"
+  JVMPLATFORM="darwin"
 else
   for file in `\ls $MYJAVAHOME/include`
   do
