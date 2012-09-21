@@ -5,6 +5,6 @@
   :min-lein-version "2.0.0"
   :description "native tokyo cabinet libraries"
   :profiles {:dev {:dependencies [[fs "1.1.2"]
-                                  [conch "0.2.4"]]}}
+                                  [me.raynes/conch "0.3.2"]]}}
   :omit-source true
   :eval-in :leiningen)

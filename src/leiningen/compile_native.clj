@@ -1,5 +1,6 @@
 (ns leiningen.compile-native
   (:use [leiningen.core.eval :only [get-os]]
+        [leiningen.core.main :only [abort]]
         [clojure.java.io :only [copy file]])
   (:require [fs.core :as fs]
             [clojure.string :as string]
@@ -33,17 +34,21 @@
         (copy (.getInputStream zip zfile) out-file)))))
 
 (defn configure [src target env]
+  (println (.getAbsolutePath src))
   (fs/chmod "+x" (file src "configure"))
-  (sh/stream-to-out
-   (sh/proc "./configure" (str "--prefix=" target)
-            :dir src :env env :verbose :very)
-   :out))
+  (let [proc (sh/proc "./configure" (str "--prefix=" target)
+                      :dir src :env env :verbose :very :redirect-err true)]
+    (sh/stream-to-out proc :out)
+    (when-not (= 0 (sh/exit-code proc))
+      (abort "configure failed"))))
 
 (defn make [src & params]
-  (sh/stream-to-out
-   (apply sh/proc "make"
-          (concat params [:dir src :verbose :very]))
-   :out))
+  (println (.getAbsolutePath src))
+  (let [proc (apply sh/proc "make"
+                    (concat params [:dir src :verbose :very :redirect-err true]))]
+    (sh/stream-to-out proc :out)
+    (when-not (= 0 (sh/exit-code proc))
+      (abort "make failed"))))
 
 (defn make-native [target os arch-flag]
   (let [src (file target "tokyocabinet-native")]
