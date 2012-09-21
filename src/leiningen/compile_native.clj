@@ -77,6 +77,7 @@
 (defn compile-tokyo [target os arch-flag]
   ;; copy source so we can compile for multiple architectures
   (fs/copy-dir (file "src") target)
+  (.mkdirs (file target "lib"))
   (make-native target os arch-flag)
   (make-java   target os arch-flag))
 
