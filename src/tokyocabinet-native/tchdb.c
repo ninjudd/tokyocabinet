@@ -262,17 +262,17 @@ bool tchdbsetmutex(TCHDB *hdb){
   }
   pthread_mutexattr_t rma;
   pthread_mutexattr_init(&rma);
-  TCMALLOC(hdb->mmtx, sizeof(pthread_rwlock_t));
-  TCMALLOC(hdb->rmtxs, (UINT8_MAX + 1) * sizeof(pthread_rwlock_t));
+  TCCALLOC(hdb->mmtx, 1, sizeof(pthread_rwlock_t));
+  TCCALLOC(hdb->rmtxs, (UINT8_MAX + 1), sizeof(pthread_rwlock_t));
 
   fprintf(log, "size %ld\n", (UINT8_MAX + 1) * sizeof(pthread_rwlock_t));
   fprintf(log, "mmtx %p\n", hdb->mmtx);
   fprintf(log, "rmtxs %p\n", hdb->rmtxs);
 
-#if defined(_MYFASTEST)
-  fprintf(log, "fast\n");
+#if TCUSEPTHREAD
+  fprintf(log, "pthread\n");
 #else
-  fprintf(log, "slow\n");
+  fprintf(log, "sched\n");
 #endif
 
   TCMALLOC(hdb->dmtx, sizeof(pthread_mutex_t));
