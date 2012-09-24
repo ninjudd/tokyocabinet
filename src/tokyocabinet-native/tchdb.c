@@ -259,11 +259,11 @@ bool tchdbsetmutex(TCHDB *hdb){
   }
   pthread_mutexattr_t rma;
   pthread_mutexattr_init(&rma);
-  TCMALLOC(hdb->mmtx, sizeof(pthread_rwlock_t));
-  TCMALLOC(hdb->rmtxs, (UINT8_MAX + 1) * sizeof(pthread_rwlock_t));
-  TCMALLOC(hdb->dmtx, sizeof(pthread_mutex_t));
-  TCMALLOC(hdb->wmtx, sizeof(pthread_mutex_t));
-  TCMALLOC(hdb->eckey, sizeof(pthread_key_t));
+  TCCALLOC(hdb->mmtx, 1, sizeof(pthread_rwlock_t));
+  TCCALLOC(hdb->rmtxs, (UINT8_MAX + 1), sizeof(pthread_rwlock_t));
+  TCCALLOC(hdb->dmtx, 1, sizeof(pthread_mutex_t));
+  TCCALLOC(hdb->wmtx, 1, sizeof(pthread_mutex_t));
+  TCCALLOC(hdb->eckey, 1, sizeof(pthread_key_t));
   bool err = false;
   if(pthread_mutexattr_settype(&rma, PTHREAD_MUTEX_RECURSIVE) != 0) err = true;
   if(pthread_rwlock_init(hdb->mmtx, NULL) != 0) err = true;
