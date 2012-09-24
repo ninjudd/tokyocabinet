@@ -2098,7 +2098,7 @@ else
   printf '# WARNING: %s is not found.\n' "$JAVAC" 1>&2
   printf '#================================================================\n' 1>&2
 fi
-JAVACFLAGS="-source 1.5 -d ."
+JAVACFLAGS="-source 1.5 -target 1.5 -d ."
 
 # Other building tools
 if uname | grep Darwin > /dev/null
