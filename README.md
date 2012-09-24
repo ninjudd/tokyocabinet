@@ -8,3 +8,7 @@ If you have any problems with `lein compile-native`, make sure that
 To cross-compile from 64-bit Linux to 32-bit, you will need to first:
 
     # apt-get install gcc-multilib lib32z1-dev lib32bz2-dev
+
+Or...
+
+    # yum install glibc-devel.i386 bzip2-devel.i386
